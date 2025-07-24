@@ -1,6 +1,6 @@
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "6.0.1"
+  version = "5.1.2"
 
   name = "${var.cluster_name}-vpc"
   cidr = "10.0.0.0/16"
@@ -10,25 +10,20 @@ module "vpc" {
   private_subnets = ["10.0.3.0/24", "10.0.4.0/24"]
 
   enable_nat_gateway = true
-  enable_vpn_gateway = true
   enable_dns_hostnames = true
   enable_dns_support   = true
 }
 
 module "eks" {
-  source  = "terraform-aws-modules/eks/aws"
-  version = "21.0.0"
-
-  name                = var.cluster_name
-  kubernetes_version  = "1.33"
-  
+  source          = "terraform-aws-modules/eks/aws"
+  version         = "20.24.0"
+  cluster_name    = var.cluster_name
+  cluster_version = "1.30"
   subnet_ids      = module.vpc.private_subnets
   vpc_id          = module.vpc.vpc_id
 
-  endpoint_public_access       = true
-  endpoint_public_access_cidrs = ["0.0.0.0/0"]
-
-  enable_cluster_creator_admin_permissions = true
+  cluster_endpoint_public_access = true
+  cluster_endpoint_public_access_cidrs = ["0.0.0.0/0"]
 
   eks_managed_node_groups = {
     default = {
